@@ -1,0 +1,62 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+    @Styles.Render("~/Profile/css")
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header_inner">
+                <div class="header_logo">
+                    <h1>The Cover</h1>
+                    <h5>The world social network</h5>
+                </div>
+                <div class="header_socialnetwork">
+                </div>
+            </div>
+            <div class="header_nav">
+                <a class="nav_link" href="index.html">My profile</a>
+                <a class="nav_link" href="#">My friends</a>
+                <a class="nav_link" href="http://www.radiorecord.ru/" target="_blank">My music</a>
+                <a class="nav_link" href="photos.html">My photos</a>
+                <a class="nav_link" href="https://www.youtube.com/" target="_blank">My videos</a>
+                <a class="nav_link" href="#">My communities</a>
+                <a class="nav_link" href="#">My settings</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="RenderBody">
+        @RenderBody()
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer_inner">
+                <div class="footer_block">
+                    <p class="copyright">© ЗАО «IT-Media», 2020</p>
+                </div>
+                <div class="footer_block">
+                    <h4 class="footer_title">connection</h4>
+                    <div class="social">
+                        <a class="social_item" href="https://vk.com/id11833696" target="_blank">
+                            <img src="~/Img/soclogo/vk.svg" height="20px" alt="vk.com">
+                        </a>
+                        <a class="social_item" href="https://www.linkedin.com/in/ilya-trakhimovich/" target="_blank">
+                            <img src="~/Img/soclogo/linkedin.svg" height="20px" alt="linkedin">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

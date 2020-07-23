@@ -1,0 +1,38 @@
+﻿@model List<WebApplication8.Models.PostViewModel>
+
+
+@foreach (var post in Model)
+{
+
+    <div class="row" style="margin-top: 20px;">
+
+        <div class="col-md-2" style="overflow: hidden">
+            @Html.Raw("<img style='width:100px; height:100px; border-radius:100%;' src=\"data:image/jpeg;base64,"
+                               + Convert.ToBase64String(post.Avatar) + "\" />")
+            <br />
+
+            @post.Author
+        </div>
+        <div class="col-md-8 col-md-offset-1" style="border: 1px solid; min-height: 100px;overflow: auto; max-height: 500px;">
+            @post.Content
+        </div>
+        <div class="col-md-1" style="border: 1px solid; min-height: 100px;overflow: auto; max-height: 500px;">
+            @if (post.UserId == ViewBag.MyId)
+            {
+                using (@Html.BeginForm("PostDelete", "Group"))
+                {
+                    <input type="hidden" name="postId" id="postId" value="@post.Id" />
+                    <input type="submit" value="delete" style="width:20px; height:20px" />
+                }
+            }
+        </div>
+        <div class=" col-md-12" style="text-align: right">
+            @post.PostDate
+        </div>
+    </div>
+    <hr style="
+    color: black;
+    height: 2px;
+    background-color: gainsboro;
+">
+}

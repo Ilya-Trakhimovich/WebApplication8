@@ -31,5 +31,10 @@ namespace WebApplication8.App_Start
         {
             return serviceCreator.CreateUserService("XConnection");
         }
+
+        private IPostService CreatePostService()
+        {
+            return serviceCreator.CreatePostService("XConnection");
+        }
     }
 }

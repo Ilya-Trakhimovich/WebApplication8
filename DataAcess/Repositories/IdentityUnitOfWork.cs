@@ -17,13 +17,17 @@ namespace DataAcess.Repositories
         private ApplicationUserManager _userManager;
         private ApplicationRoleManager _roleManager;
         private IUserProfileManager _userProfileManager;
+        private PostRepository _postRepository;
+        private GroupRepository _groupRepository;
 
         public IdentityUnitOfWork(string connectionString)
         {
             _db = new EF.AppContext(connectionString);
             _userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(_db));
             _roleManager = new ApplicationRoleManager(new RoleStore<ApplicationRole>(_db));
+            _postRepository = new PostRepository(_db);
             _userProfileManager = new UserProfileManager(_db);
+            _groupRepository = new GroupRepository(_db);
         }
 
         public ApplicationUserManager UserManager
@@ -39,6 +43,16 @@ namespace DataAcess.Repositories
         public ApplicationRoleManager RoleManager
         {
             get { return _roleManager; }
+        }
+
+        public IRepository<Post> PostRepository
+        {
+            get { return _postRepository; }
+        }
+
+        public IGroupManager<Group> GroupRepository
+        {
+            get { return _groupRepository; }
         }
 
         public async Task SaveAsync()

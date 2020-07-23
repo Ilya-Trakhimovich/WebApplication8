@@ -9,10 +9,8 @@ namespace DataAcess.Entities
     public class PostLike
     {
         public int Id { get; set; }
-        public virtual ICollection<ApplicationUser> Users { get; set; }
-        public PostLike()
-        {
-            Users = new List<ApplicationUser>();
-        }
+        public string User { get; set; }
+        public int PostId { get; set; }
+        public virtual Post Post { get; set; }
     }
 }

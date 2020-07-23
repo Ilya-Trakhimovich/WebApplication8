@@ -22,3 +22,28 @@ select,
 textarea {
     max-width: 280px;
 }
+.nav-bar-collapse
+{}
+.btn-nav-bar-collapse {       
+    margin-right: 5px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    background-color: grey;  
+    border: 1px solid ;
+    border-color: black;
+    border-radius: 4px;
+    min-height: 20px;
+    min-width:40px;
+}
+.nav-icon-bar {
+    display: block;
+    width: 22px;
+    height: 10px;
+    border-radius: 1px;
+}
+.horizontal-border {
+    color: black;
+    height: 1px;
+    background-color: grey;
+}
+    

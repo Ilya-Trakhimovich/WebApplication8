@@ -1,0 +1,62 @@
+﻿@model WebApplication8.Models.UserViewModel
+
+<div style="overflow: auto; max-height: 250px;">
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>        
+
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+            <br/>
+        </dd>
+
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Age)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Age)
+            <br/>
+        </dd>
+
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Gender)           
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Gender)
+            <br />
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Address)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Address)
+            <br />
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Education)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Education)
+            <br />
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.AboutMe)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.AboutMe)
+            <br />
+        </dd>
+    </dl>
+</div>

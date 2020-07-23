@@ -1,0 +1,74 @@
+﻿@model WebApplication8.Models.GroupViewModel
+
+@{
+    ViewBag.Title = "Group";
+    Layout = "~/Views/Shared/_LayoutProfile.cshtml";
+}
+
+    <div class="container-fluid">
+        @Html.AntiForgeryToken()
+        <div class="row">
+            <h2 style="text-align:center">@Model.GroupName</h2>
+            <div class="col-md-8">
+                <h3>@Model.GroupDescription</h3>
+            </div>
+            <div class="col-md-4" style="text-align: center;">
+                @Html.Raw("<img style='width:300px; height:300px;' src=\"data:image/jpeg;base64,"
+                        + Convert.ToBase64String(Model.Avatar) + "\" />")
+
+                @if (ViewBag.IsGroupAdmin)
+                {
+                    using (@Html.BeginForm("ChangeGroupButton", "Group"))
+                    {
+                        <input type="hidden" name="id" id="id" value=@Model.Id />
+                        <input type="submit" class="btn btn-secondary" value="Редактировать группу" style="text-align: center; width: 100%; display: initial;" />
+                    }
+                }
+
+                @if (!ViewBag.IsMember)
+                {
+                    using (@Html.BeginForm("InviteToGroup", "Group"))
+                    {
+                        <input type="hidden" name="id" id="id" value=@Model.Id />
+                        <input type="submit" class="btn btn-secondary" value="Вступить в группу" style="text-align: center; width: 100%; display: initial;" />
+                    }
+                }
+                else
+                {
+                    using (Html.BeginForm("DeleteUserFromGroup", "Group"))
+                    {
+                        <input type="hidden" name="id" id="id" value=@Model.Id />
+                        <input type="submit" class="btn btn-secondary" value="Покинуть сообщество" style="text-align: center; width: 100%; display: initial;" />
+                    }
+                }
+                <br />
+                <div class="col-md-12" style=" max-height: 300px; overflow: auto; text-align: center;">
+                    <h3>Участники сообщества</h3>
+                    @Html.Partial("GroupMembers", Model.GroupMembers)
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                Photos
+            </div>
+
+        </div>
+        <hr style="color: black; height: 2px; background-color: gainsboro;">
+        <div class="container-fluid">
+            @using (@Html.BeginForm("AddPostToGroup", "Group"))
+            {
+                <input type="hidden" name="groupId" id="groupId" value=@Model.Id />
+                <div class="row">
+                    <div class="col-md-11">
+                        <textarea cols="20" id="postContent" name="postContent" rows="2" style="width: 100%; max-width: 100% !important;"></textarea>
+                    </div>
+                    <div class="col-md-1">
+                        <input type="submit" value="Отправить" class="btn btn-default" />
+                    </div>
+                </div>
+            }
+        </div>
+
+        @Html.Partial("GroupPost", Model.GroupPosts)
+    </div>

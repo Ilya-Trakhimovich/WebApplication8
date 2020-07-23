@@ -9,17 +9,22 @@ namespace WebApplication8.Models
     public class RegisterModel
     {
         [Required]
+        [Display(Name = "Эл. почта")]
         public string Email { get; set; }
         [Required]
         [DataType(DataType.Password)]
+        [Display(Name = "Пароль")]
         public string Password { get; set; }
+        [Display(Name = "Повторите пароль")]
         [Required]
         [DataType(DataType.Password)]
         [Compare("Password")]
         public string ConfirmPassword { get; set; }
+        [Display(Name = "Имя")]
         [Required]
-        public string Address { get; set; }
+        public string FirstName { get; set; }
+        [Display(Name = "Фамилия")]
         [Required]
-        public string Name { get; set; }
+        public string SecondName { get; set; }
     }
 }

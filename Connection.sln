@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAcess", "DataAcess\Data
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppBLL", "AppBLL\AppBLL.csproj", "{BE3EBFD4-354C-4C42-AD16-4DDD7FD53AB9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XConnection.Tests", "XConnection.Tests\XConnection.Tests.csproj", "{D759B844-A1DE-4063-96B8-E4FA2F54C279}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{BE3EBFD4-354C-4C42-AD16-4DDD7FD53AB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE3EBFD4-354C-4C42-AD16-4DDD7FD53AB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE3EBFD4-354C-4C42-AD16-4DDD7FD53AB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D759B844-A1DE-4063-96B8-E4FA2F54C279}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D759B844-A1DE-4063-96B8-E4FA2F54C279}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D759B844-A1DE-4063-96B8-E4FA2F54C279}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D759B844-A1DE-4063-96B8-E4FA2F54C279}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

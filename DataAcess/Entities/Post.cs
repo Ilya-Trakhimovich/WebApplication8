@@ -12,7 +12,14 @@ namespace DataAcess.Entities
         public string Headline { get; set; }
         public string Content { get; set; }
         public DateTime PostDate { get; set; }
+        public string UserPageId { get; set; }
+        public virtual List<PostLike> PostLikes { get; set; }
         public string ApplicationUserId { get; set; }
         public virtual ApplicationUser ApplicationUser { get; set; }
+
+        public Post()
+        {
+            PostLikes = new List<PostLike>();
+        }
     }
 }

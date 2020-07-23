@@ -1,0 +1,11 @@
+﻿@Model 
+
+@{
+    string valuePassedIn = this.ViewData.ContainsKey("postId") ? this.ViewData["postId"].ToString() : string.Empty;
+}
+
+@using (Html.BeginForm("Like", "Like"))
+{
+    <input type="hidden" value=@valuePassedIn name="postId" id="postId" />
+    <input type="submit" value="like" />
+}

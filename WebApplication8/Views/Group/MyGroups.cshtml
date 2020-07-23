@@ -1,0 +1,38 @@
+﻿@model IEnumerable<WebApplication8.Models.GroupViewModel>
+
+@{
+    ViewBag.Title = "GroupsView";
+    Layout = "~/Views/Shared/_LayoutProfile.cshtml";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            @Html.ActionLink("Создать сообщество", "CreateGroup", "Group", new { area = "" }, new { @class = "navbar-brand" })
+        </div>
+        <div class="col-md-6">
+            @Html.ActionLink("Все сообщества", "Groups", "Group", new { area = "" }, new { @class = "navbar-brand" })
+        </div>
+    </div>
+</div>
+<hr class="horizontal-border" />
+
+@using (Html.BeginForm("MyGroups","Group"))
+{
+    <input name="searchText" placeholder="Введите название группы" type="search">
+    <button type="submit">Поиск</button>
+}
+
+<div class="wall">
+    <div class="container-fluid">
+        @foreach (var item in Model)
+        {
+            @Html.Raw("<img style='width:100px; height:100px; border-radius:100%;' src=\"data:image/jpeg;base64,"
+                        + Convert.ToBase64String(item.Avatar) + "\" />")
+
+            @Html.ActionLink(item.GroupName, $"Group/{@item.Id}", "Group")
+            <br />
+        }
+    </div>
+</div>
+

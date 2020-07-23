@@ -13,6 +13,8 @@ namespace DataAcess.Interfaces
         ApplicationUserManager UserManager { get; }
         ApplicationRoleManager RoleManager { get; }
         IUserProfileManager UserProfileManager { get; }
+        IGroupManager<Group> GroupRepository { get; }
+        IRepository<Post> PostRepository { get;  }
         Task SaveAsync();
     }
 }

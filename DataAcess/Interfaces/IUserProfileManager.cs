@@ -10,5 +10,8 @@ namespace DataAcess.Interfaces
     public interface IUserProfileManager : IDisposable
     {
         void Create(UserProfile userProfile);
+        UserProfile GetUserById(string id);
+        List<UserProfile> GetAllUsers();   
+        void SaveChanges();
     }
 }

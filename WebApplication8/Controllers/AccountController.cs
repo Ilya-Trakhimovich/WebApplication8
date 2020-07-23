@@ -34,7 +34,7 @@ namespace WebApplication8.Controllers
 
         public ActionResult Login()
         {
-            return View();
+            return View("Login");
         }
 
         [HttpPost]
@@ -48,7 +48,7 @@ namespace WebApplication8.Controllers
                 UserDTO userDto = new UserDTO { Email = model.Email, Password = model.Password };
                 ClaimsIdentity claim = await UserService.Authenticate(userDto);
 
-                
+
 
                 if (claim == null)
                 {
@@ -78,7 +78,7 @@ namespace WebApplication8.Controllers
 
         public ActionResult Register()
         {
-            return View();
+            return View("Register");
         }
 
         [HttpPost]
@@ -93,20 +93,35 @@ namespace WebApplication8.Controllers
                 {
                     Email = model.Email,
                     Password = model.Password,
-                    Address = model.Address,
-                    Name = model.Name,
+                    FirstName = model.FirstName,
+                    SecondName = model.SecondName,
+                    Avatar = UserService.GetDefaultAvatar(),
                     Role = "user"
                 };
+
                 OperationDetails operationDetails = await UserService.Create(userDto);
 
                 if (operationDetails.Succedeed)
-                    return View("SuccessRegister");
+                {
+                    ClaimsIdentity claim = await UserService.Authenticate(userDto);
+
+                    AuthenticationManager.SignOut();
+                    AuthenticationManager.SignIn(new AuthenticationProperties
+                    {
+                        IsPersistent = true
+                    }, claim);
+
+                    return RedirectToAction("Index", "Home");
+
+                }
+                //return View("SuccessRegister");
                 else
                     ModelState.AddModelError(operationDetails.Property, operationDetails.Message);
             }
 
             return View(model);
         }
+
         private async Task SetInitialDataAsync()
         {
             await UserService.SetInitialData(new UserDTO
@@ -114,8 +129,8 @@ namespace WebApplication8.Controllers
                 Email = "somemail@mail.ru",
                 UserName = "somemail@mail.ru",
                 Password = "123456",
-                Name = "Donald Tramp",
-                Address = "USA",
+                FirstName = "Donald",
+                SecondName = "Trump",
                 Role = "admin",
             }, new List<string> { "user", "admin" });
         }

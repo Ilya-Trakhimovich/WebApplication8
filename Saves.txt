@@ -1,0 +1,47 @@
+<div class="header_nav">
+                @Html.ActionLink("Профиль", "Index/1", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("Пользователи", "Users", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                <a class="nav_link" href="http://www.radiorecord.ru/" target="_blank">Музыка</a>
+                <a class="nav_link" href="photos.html">Фотографии</a>
+                <a class="nav_link" href="https://www.youtube.com/" target="_blank">Видео</a>
+                @Html.ActionLink("Сообщества", "Groups", "Group", new { area = ""}, new { @class = "navbar-brand"})
+                @Html.ActionLink("Настройки", "ChangeProfileInformation", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+
+<ul class="header_nav" style="list-style-type: none;">
+                    <li id="Profile">
+                        <div class="col-md-2">
+                            @Html.ActionLink("Профиль", "Index/1", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                        </div>
+                    </li>
+                    <li id="Users">
+                        <div class="col-md-2">
+                            @Html.ActionLink("Пользователи", "Users", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                        </div>
+                    </li>
+                    <li id="Music">
+                        <div class="col-md-2">
+                            <a class="nav_link" href="http://www.radiorecord.ru/" target="_blank">Музыка</a>
+                        </div>
+                    </li>
+                    <li id="Photos">
+                        <div class="col-md-2">
+                            <a class="nav_link" href="photos.html">Фотографии</a>
+                        </div>
+                    </li>
+                    <li id="Videos">
+                        <div class="col-md-1">
+                            <a class="nav_link" href="https://www.youtube.com/" target="_blank">Видео</a>
+                        </div>
+                    </li>
+                    <li id="Groups">
+                        <div class="col-md-2">
+                            @Html.ActionLink("Сообщества", "Groups", "Group", new { area = "" }, new { @class = "navbar-brand" })
+                        </div>
+                    </li>
+                    <li is="Settings">
+                        <div class="col-md-2">
+                            @Html.ActionLink("Настройки", "ChangeProfileInformation", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                        </div>
+                    </li>
+                </ul>

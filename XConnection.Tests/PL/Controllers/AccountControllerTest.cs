@@ -29,9 +29,37 @@ namespace XConnection.Tests.PL.Controllers
         }
 
         [TestMethod]
-        public void Register_()
-        { 
-        
+        public void Login_ModelIsNOtValid_Returns_View()
+        {
+            //Arrange
+            var expectedView = "Login";
+            AccountController accountController = new AccountController();
+
+            accountController.ModelState.AddModelError("", "Error");
+
+            //Act
+            var result = accountController.Login() as ViewResult;
+
+            //Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expectedView, result.ViewName);
+        }
+
+        [TestMethod]
+        public void REgister_ModelIsNotValid_Returns_View()
+        {
+            //Arrange
+            var expectedView = "Register";
+            AccountController accountController = new AccountController();
+
+            accountController.ModelState.AddModelError("", "Error");
+
+            //Act
+            var result = accountController.Register() as ViewResult;
+
+            //Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expectedView, result.ViewName);
         }
 
 

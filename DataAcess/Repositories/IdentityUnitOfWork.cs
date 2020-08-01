@@ -19,6 +19,7 @@ namespace DataAcess.Repositories
         private IUserProfileManager _userProfileManager;
         private PostRepository _postRepository;
         private GroupRepository _groupRepository;
+        private GroupPostRepository _groupPostRepository;
 
         public IdentityUnitOfWork(string connectionString)
         {
@@ -28,6 +29,7 @@ namespace DataAcess.Repositories
             _postRepository = new PostRepository(_db);
             _userProfileManager = new UserProfileManager(_db);
             _groupRepository = new GroupRepository(_db);
+            _groupPostRepository = new GroupPostRepository(_db);
         }
 
         public ApplicationUserManager UserManager
@@ -45,7 +47,7 @@ namespace DataAcess.Repositories
             get { return _roleManager; }
         }
 
-        public IRepository<Post> PostRepository
+        public IPostRepository<Post> PostRepository
         {
             get { return _postRepository; }
         }
@@ -53,6 +55,11 @@ namespace DataAcess.Repositories
         public IGroupManager<Group> GroupRepository
         {
             get { return _groupRepository; }
+        }
+
+        public IGroupPostRepository<GroupPost> GroupPostRepository
+        {
+            get { return _groupPostRepository; }
         }
 
         public async Task SaveAsync()
@@ -65,6 +72,7 @@ namespace DataAcess.Repositories
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
         private bool disposed = false;
 
         public virtual void Dispose(bool disposing)
@@ -77,6 +85,7 @@ namespace DataAcess.Repositories
                     _roleManager.Dispose();
                     _userProfileManager.Dispose();
                 }
+
                 this.disposed = true;
             }
         }

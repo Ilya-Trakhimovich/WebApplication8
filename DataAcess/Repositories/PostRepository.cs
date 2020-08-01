@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DataAcess.Repositories
 {
-    public class PostRepository : IRepository<Post>
+    public class PostRepository : IPostRepository<Post>
     {
         public EF.AppContext Db { get; set; }
 
@@ -19,12 +19,9 @@ namespace DataAcess.Repositories
 
         public Post GetById(int id)
         {
-          return  Db.Posts.Where(x => x.Id == id).FirstOrDefault();
-        }
-
-        public IEnumerable<Post> Find(Func<Post, bool> predicate)
-        {
-            throw new NotImplementedException();
+          return  Db.Posts
+                .Where(x => x.Id == id)
+                .FirstOrDefault();
         }
 
         public void Add(Post entity)
@@ -33,32 +30,37 @@ namespace DataAcess.Repositories
             Db.SaveChanges();
         }
 
-        public void Update(Post entity)
-        {
-            throw new NotImplementedException();
-        }
-
         public void Delete(int id)
         {
-            var post = Db.Posts.Where(x => x.Id == id).FirstOrDefault();
+            var post = Db.Posts
+                .Where(x => x.Id == id)
+                .FirstOrDefault();
+
             Db.Posts.Remove(post);
             Db.SaveChanges();
         }
 
-        IEnumerable<Post> IRepository<Post>.GetAll(string id)
+        IEnumerable<Post> IPostRepository<Post>.GetAll(string id)
         {
-            return Db.Posts.Where(x => x.UserPageId == id).ToList();
+            return Db.Posts
+                .Where(x => x.UserPageId == id)
+                .ToList();
         }
 
         public void PostLike(PostLike post)
         {
-            Db.Posts.Where(x => x.Id == post.PostId).FirstOrDefault().PostLikes.Add(post);
+            Db.Posts.Where(x => x.Id == post.PostId)
+                .FirstOrDefault()
+                .PostLikes.Add(post);
+
             Db.SaveChanges();
         }
 
         public void PostDislike(PostLike post)
         {
-            var postLikeToDelete = Db.PostLikes.Where(x => x.PostId == post.PostId && x.User == post.User).FirstOrDefault();
+            var postLikeToDelete = Db.PostLikes
+                .Where(x => x.PostId == post.PostId && x.User == post.User)
+                .FirstOrDefault();
 
             Db.PostLikes.Remove(postLikeToDelete);
             Db.SaveChanges();

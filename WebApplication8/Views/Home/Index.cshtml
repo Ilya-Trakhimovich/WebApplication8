@@ -4,32 +4,32 @@
     Layout = "~/Views/Shared/_LayoutProfile.cshtml";
 }
 
-<div class="content">
+<div class="content div-shadow">
 
     <div class="container">
-        <div class="col-md-2" style="padding-top: 35px; text-align: center;">
+        <div class="col-md-2 div-index-avatar">
 
             @Html.Raw("<img style='width:180px; height:183px; border-radius:100%;' src=\"data:image/jpeg;base64,"
                           + Convert.ToBase64String(Model.Avatar) + "\" />")
         </div>
         <div class="col-md-10">
-            <div >
+            <div>
                 @Html.Partial("ProfileDetails")
             </div>
         </div>
     </div>
 </div>
 
+<div><span id="notification" style="color:red;font-size:15px;"></span></div>
 <div class="wall">
-    <h1>Стена</h1>
 
-    <div class="container-fluid">
+    <div class="container-fluid div-index-addpost-block">
         @using (@Html.BeginForm("Add", "Post"))
         {
             <input type="hidden" name="Id" id="Id" value=@Model.Id />
             <div class="row">
-                <div class="col-md-11" style="padding-left: 0px;">
-                    <textarea cols="20" id="postContent" required name="postContent" rows="2" style="width: 100%; max-width: 100% !important;"></textarea>
+                <div class="col-md-11 div-index-addpost-text">
+                    <textarea class="div-index-addpost-textarea" cols="20" id="postContent" required name="postContent" rows="2"></textarea>
                 </div>
                 <div class="col-md-1">
                     <input type="submit" value="Отправить" class="btn btn-default" />
@@ -39,8 +39,7 @@
     </div>
 
     <div>
-        @Html.Partial("ShowPost", Model.Posts);
+        @Html.Partial("ShowPost", Model.Posts)
     </div>
 
 </div>
-

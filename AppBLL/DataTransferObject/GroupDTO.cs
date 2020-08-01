@@ -22,6 +22,5 @@ namespace AppBLL.DataTransferObject
         {
             GroupMembers = new List<UserProfileDTO>();
         }
-        //public string  GroupAdminId { get; set; }
     }
 }

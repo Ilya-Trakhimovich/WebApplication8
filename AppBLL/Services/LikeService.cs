@@ -1,4 +1,5 @@
-﻿using AppBLL.DataTransferObject;
+﻿using AppBLL.Configs;
+using AppBLL.DataTransferObject;
 using AppBLL.Infrastructure;
 using AppBLL.Interfaces;
 using AutoMapper;
@@ -20,6 +21,8 @@ namespace AppBLL.Services
     {
         IUnitOfWork Database { get; set; }
 
+        readonly MapperConfigs mapperConfigs = new MapperConfigs();
+
         public LikeService(IUnitOfWork uow)
         {
             Database = uow;
@@ -27,32 +30,31 @@ namespace AppBLL.Services
 
         public void AddLikeToPost(PostLikeDTO postLikeDTO)
         {
-            PostLike postLike = new PostLike()
+            if (postLikeDTO is null)
             {
-                Id = postLikeDTO.Id,
-                PostId = postLikeDTO.PostId,
-                User = postLikeDTO.UserId
-            };
+                throw new ArgumentNullException();
+            }
+
+            Mapper postLikeMapper = new Mapper(mapperConfigs.PostLikeDtoToPostLike);
+            PostLike postLike = postLikeMapper.Map<PostLike>(postLikeDTO);
           
             Database.PostRepository.PostLike(postLike);
         }
 
         public void DislikePost(PostLikeDTO postLikeDTO)
         {
-            PostLike postLike = new PostLike()
+            if (postLikeDTO is null)
             {
-                Id = postLikeDTO.Id,
-                PostId = postLikeDTO.PostId,
-                User = postLikeDTO.UserId
-            };
+                throw new ArgumentNullException();
+            }
+
+            Mapper postLikeMapper = new Mapper(mapperConfigs.PostLikeDtoToPostLike);
+            PostLike postLike = postLikeMapper.Map<PostLike>(postLikeDTO);
 
             Database.PostRepository.PostDislike(postLike);
         }
 
-        public List<PostLike> GetAllPostLikes(int postId)
-        {
-           return Database.PostRepository.GetById(postId).PostLikes;
-        }
+        public List<PostLike> GetAllPostLikes(int postId) => Database.PostRepository.GetById(postId).PostLikes;
 
         public void Dispose()
         {

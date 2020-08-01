@@ -15,6 +15,5 @@ namespace AppBLL.DataTransferObject
         public byte[] Avatar { get; set; }
         public string Education { get; set; }
         public string AboutMe { get; set; }
-
     }
 }

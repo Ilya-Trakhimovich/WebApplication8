@@ -13,8 +13,6 @@ namespace DataAcess.Entities
         public int Id { get; set; }
         public string GroupName { get; set; }
         public string GroupDescription { get; set; }
-        //public string ApplicationUserId { get; set; }
-        //public virtual ApplicationUser ApplicationUser { get; set; }
         public byte[] Avatar { get; set; }
         public string Admin { get; set; }
         public virtual List<GroupPost> GroupPosts { get; set; }
@@ -24,5 +22,8 @@ namespace DataAcess.Entities
             GroupPosts = new List<GroupPost>();
             ApplicationUsers = new List<ApplicationUser>();
         }
+
+        //public string ApplicationUserId { get; set; }
+        //public virtual ApplicationUser ApplicationUser { get; set; }
     }
 }

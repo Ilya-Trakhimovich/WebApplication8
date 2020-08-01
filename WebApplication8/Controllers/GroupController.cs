@@ -1,6 +1,7 @@
 ﻿using AppBLL.DataTransferObject;
 using AppBLL.Interfaces;
 using AppBLL.Services;
+using AutoMapper;
 using Microsoft.Ajax.Utilities;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
+using WebApplication8.App_Start;
 using WebApplication8.Models;
 
 namespace WebApplication8.Controllers
@@ -18,14 +20,54 @@ namespace WebApplication8.Controllers
     [Authorize]
     public class GroupController : Controller
     {
-        public Guid myGroup = new Guid();
+        ServiceCreator serviceCreator = new ServiceCreator();
+        MapperConfigs mapperConfigs = new MapperConfigs();
+
+
+        //ServiceCreator _serviceCreator = new ServiceCreator();
+        //IGroupService _groupService;
+        //IUserService _userService;
+        //IPostService _postService;
+
+        //public Func<string> GetUserId;
+
+        //public GroupController()
+        //{
+        //    _groupService = _serviceCreator.CreateGroupService();
+        //    _userService = _serviceCreator.CreateUserService();
+        //    _postService = _serviceCreator.CreatePostService();
+
+        //    GetUserIdIdentity = () => User.Identity.GetUserId();
+        //}
+
+        //public GroupController(IServiceCreator _service)
+        //{
+        //    _groupService = _service.CreateGroupService();
+        //    _userService = _service.CreateUserService(); ;
+        //    _postService = _service.CreatePostService();
+
+        //    GetUserIdIdentity = () => User.Identity.GetUserId();
+        //}
+
+        //public Func<string> GetUserIdIdentity;
+        private Mapper _groupViewMapper
+        {
+            get
+            {
+                return new Mapper(mapperConfigs.GroupDtoToGroupViewModel);
+            }
+        }
+
+        private IUserService GetUser()
+        {
+            return HttpContext.GetOwinContext().GetUserManager<IUserService>();
+        }
+
         private IGroupService _groupService
         {
             get
             {
-                ServiceCreator serviceCreator = new ServiceCreator();
-                var groupService = serviceCreator.CreateGroupService("XConnection");
-                return groupService;
+                return serviceCreator.CreateGroupService();
             }
         }
 
@@ -37,30 +79,42 @@ namespace WebApplication8.Controllers
             }
         }
 
-        public ActionResult CreateGroup()
+        private IPostService _postService
         {
-            return View("CreateGroup");
+            get
+            {
+                return serviceCreator.CreatePostService();
+            }
         }
+
+        public ActionResult CreateGroup() => View("CreateGroup");
+
+        public ActionResult ChangeGroupButton(int id) => RedirectToAction($"ChangeGroupInformation/{id}", "Group");
+
+        [HttpGet]
+        public ActionResult InviteToGroup() => RedirectToAction("Index/1", "Home");
 
         public ActionResult GroupAdd(GroupViewModel groupViewModel)
         {
             GroupDTO groupDTO = new GroupDTO();
+
             if (ModelState.IsValid)
             {
-                //  groupDTO.Id = groupViewModel.Id;
+                //groupDTO.Id = groupViewModel.Id;
                 groupDTO.GroupName = groupViewModel.GroupName;
                 groupDTO.GroupDescription = groupViewModel.GroupDescription;
                 groupDTO.GroupCreatorId = User.Identity.GetUserId();
+
                 _groupService.Create(groupDTO);
 
                 return RedirectToAction("Groups", "Group");
             }
+
             return View("CreateGroup", groupViewModel);
         }
 
         public ActionResult MyGroups(string searchText)
         {
-            List<GroupViewModel> groups = new List<GroupViewModel>();
             var groupsDTO = _userService.GetUserGroups(User.Identity.GetUserId());
 
             if (!searchText.IsNullOrWhiteSpace())
@@ -68,16 +122,7 @@ namespace WebApplication8.Controllers
 
             groupsDTO.ToList();
 
-            foreach (var groupDTO in groupsDTO)
-            {
-                groups.Add(new GroupViewModel()
-                {
-                    Avatar = groupDTO.Avatar,
-                    Id = groupDTO.Id,
-                    GroupName = groupDTO.GroupName,
-                    GroupDescription = groupDTO.GroupDescription
-                });
-            }
+            var groups = _groupViewMapper.Map<List<GroupViewModel>>(groupsDTO);
 
             return View(groups);
         }
@@ -88,25 +133,19 @@ namespace WebApplication8.Controllers
             var groupsDTO = _groupService.GetAllGroups();
 
             if (!searchText.IsNullOrWhiteSpace())
-                groupsDTO = groupsDTO.Where(x => x.GroupName.ToUpper().Contains(searchText.ToUpper()));
+            {
+                groupsDTO = groupsDTO
+                    .Where(x => x.GroupName.ToUpper()
+                    .Contains(searchText.ToUpper()));
+            }
 
             groupsDTO.ToList();
 
             if (groupsDTO != null)
             {
-                foreach (var groupDTO in groupsDTO)
-                {
-                    groupModels.Add(new GroupViewModel()
-                    {
-                        Id = groupDTO.Id,
-                        GroupName = groupDTO.GroupName,
-                        GroupDescription = groupDTO.GroupDescription,
-                        Admin = groupDTO.Admin,
-                        Avatar = groupDTO.Avatar
+                groupModels = _groupViewMapper.Map<List<GroupViewModel>>(groupsDTO);
 
-                    });
-                }
-                return View(groupModels);
+                return View("Groups", groupModels);
             }
             else
             {
@@ -118,45 +157,34 @@ namespace WebApplication8.Controllers
 
         public ActionResult Group(int id)
         {
+            List<GroupPostViewModel> groupPosts = new List<GroupPostViewModel>();
+
             string myId = User.Identity.GetUserId();
-            List<UserViewModel> userViewModels = new List<UserViewModel>();
             var groupDTO = _groupService.GetGroupById(id);
-            List<PostViewModel> groupPosts = new List<PostViewModel>();
 
             foreach (var postDTO in groupDTO.GroupPosts)
             {
-                groupPosts.Add(new PostViewModel()
-                {
-                    Content = postDTO.Content,
-                    PostDate = postDTO.PostDate,
-                    Author = _userService.GetFullName(postDTO.authorId),
-                    Avatar = _userService.GetAvatar(postDTO.authorId)
-                });
+                var groupPostMapper = new Mapper(mapperConfigs.GroupPostDtoToGroupPostViewModel);
+                var groupPostViewModel = groupPostMapper.Map<GroupPostViewModel>(postDTO);
+
+                groupPostViewModel.Author = _userService.GetFullName(postDTO.AuthorId);
+                groupPostViewModel.Avatar = _userService.GetAvatar(postDTO.AuthorId);
+
+                groupPosts.Add(groupPostViewModel);
             }
+
             groupPosts.Reverse();
 
-            foreach (var member in groupDTO.GroupMembers)
-            {
-                userViewModels.Add(new UserViewModel()
-                {
-                    Id = member.Id,
-                    Name = member.Name,
-                    Avatar = member.Avatar
-                });
-            }
-            var viewModel = new GroupViewModel()
-            {
-                GroupName = groupDTO.GroupName,
-                Id = groupDTO.Id,
-                GroupCreatorId = groupDTO.GroupCreatorId,
-                GroupDescription = groupDTO.GroupDescription,
-                GroupMembers = userViewModels,
-                GroupPosts = groupPosts,
-                Admin = groupDTO.Admin,
-                Avatar = groupDTO.Avatar
+            Mapper userViewMapper = new Mapper(mapperConfigs.UserProfileDtoToUserViewModel);
 
-            };
+            var userViewModels = userViewMapper.Map<List<UserViewModel>>(groupDTO.GroupMembers);
+            var viewModel = _groupViewMapper.Map<GroupViewModel>(groupDTO);
 
+            viewModel.GroupMembers = userViewModels;
+            viewModel.GroupPosts = groupPosts;
+
+            ViewBag.MyId = User.Identity.GetUserId();
+            ViewBag.GroupId = id;
             ViewBag.IsMember = (viewModel.GroupMembers.Where(x => x.Id == myId).FirstOrDefault() == null) ? false : true;
             ViewBag.IsGroupAdmin = viewModel.GroupCreatorId == User.Identity.GetUserId() ? true : false;
 
@@ -167,23 +195,16 @@ namespace WebApplication8.Controllers
         {
             if (ModelState.IsValid)
             {
-                GroupDTO groupDTO = new GroupDTO();
-
-                groupDTO = new GroupDTO()
-                {
-                    Id = group.Id,
-                    GroupDescription = group.GroupDescription,
-                    GroupName = group.GroupName
-                };
+                Mapper groupDtoMapper = new Mapper(mapperConfigs.GroupViewModelToGroupDtoWithoutAvatar);
+                GroupDTO groupDTO = groupDtoMapper.Map<GroupDTO>(group);
 
                 if (uploadImage != null)
                 {
                     byte[] imageData = null;
-                    // считываем переданный файл в массив байтов
+
                     using (var binaryReader = new BinaryReader(uploadImage.InputStream))
-                    {
                         imageData = binaryReader.ReadBytes(uploadImage.ContentLength);
-                    }
+
                     groupDTO.Avatar = imageData;
                 }
 
@@ -191,93 +212,85 @@ namespace WebApplication8.Controllers
 
                 return RedirectToAction($"Group/{group.Id}", "Group");
             }
+
             return View("ChangeGroupInformation", group);
         }
-
-        public ActionResult ChangeGroupButton(int id)
-        {
-            return RedirectToAction($"ChangeGroupInformation/{id}", "Group");
-        }
-
 
         public ActionResult ChangeGroupInformation(int id)
         {
             if (_groupService.GetAdmin(id) != User.Identity.GetUserId())
                 return RedirectToAction("Index/1", "Home");
 
-            var group = _groupService.GetGroupById(id);
-            GroupViewModel groupViewModel = new GroupViewModel()
-            {
-                GroupName = group.GroupName,
-                GroupDescription = group.GroupDescription,
-                Avatar = group.Avatar
-            };
+            var groupViewModel = _groupViewMapper.Map<GroupViewModel>(_groupService.GetGroupById(id));
 
             return View(groupViewModel);
+        }
+
+        [HttpPost]
+        public ActionResult UserSearch(string name, int groupId)
+        {
+            var users = _groupService.
+                 GetGroupById(groupId).
+                 GroupMembers.
+                 Where(x => x.Name.ToUpper().Contains(name.ToUpper())).
+                 ToList();
+
+            Mapper userViewMapper = new Mapper(mapperConfigs.UserProfileDtoToUserViewModel);
+            var userViewModels = userViewMapper.Map<List<UserViewModel>>(users);
+
+            if (users.Count < 1)
+                return HttpNotFound();
+
+            ViewBag.GroupId = groupId;
+            ViewBag.IsGroupAdmin = _groupService.GetAdmin(groupId) == User.Identity.GetUserId() ? true : false;
+            return PartialView(userViewModels);
         }
 
         [HttpPost]
         public ActionResult InviteToGroup(int id)
         {
             _groupService.AddUser(User.Identity.GetUserId(), id);
-            return RedirectToAction($"Group/{id}", "Group");
-        }
 
-        [HttpGet]
-        public ActionResult InviteToGroup()
-        {
-            return RedirectToAction("Index/1", "Home");
+            return RedirectToAction($"Group/{id}", "Group");
         }
 
         [HttpPost]
         public ActionResult DeleteUserFromGroup(int id)
         {
             _groupService.DeleteUserFromGroup(User.Identity.GetUserId(), id);
+
             return RedirectToAction($"Group/{id}", "Group");
+        }
+
+        [HttpPost]
+        public ActionResult DeleteGroupMember(string userId, int groupId)
+        {
+            _groupService.DeleteUserFromGroup(userId, groupId);
+
+            return RedirectToAction($"Group/{groupId}", "Group");
         }
 
         public ActionResult AddPostToGroup(string postContent, int groupId)
         {
-            GroupPostDTO groupDTO = new GroupPostDTO()
+            GroupPostDTO groupPostDTO = new GroupPostDTO()
             {
-                authorId = User.Identity.GetUserId(),
+                AuthorId = User.Identity.GetUserId(),
                 Content = postContent,
                 GroupId = groupId,
                 PostDate = DateTime.Now
             };
 
-            _groupService.AddPost(groupDTO);
+            _postService.AddGroupPost(groupPostDTO);
 
             return RedirectToAction($"Group/{groupId}", "Group");
         }
 
-        public ActionResult GetGroupsByName(string groupName)
+        public ActionResult PostDelete(int postId)
         {
-            if (groupName == null)
-            {
-                return View("GroupSearchView");
-            }
-            var groupsDTO = _groupService.GetGroupsByName(groupName).ToList();
-            List<GroupViewModel> groupModels = new List<GroupViewModel>();
-            if (groupsDTO != null && groupsDTO.Count != 0)
-            {
-                foreach (var groupDTO in groupsDTO)
-                {
-                    groupModels.Add(new GroupViewModel()
-                    {
-                        Id = groupDTO.Id,
-                        GroupName = groupDTO.GroupName,
-                        GroupDescription = groupDTO.GroupDescription,
-                        Admin = groupDTO.Admin,
-                        Avatar = groupDTO.Avatar
-                    });
-                }
-                return View("GroupSearchView", groupModels);
-            }
-            else
-            {
-                return View("GroupSearchView");
-            }
+            ViewBag.MyId = User.Identity.GetUserId();
+            _postService.DeletePost(postId);
+
+            return RedirectToAction("Index/1", "Home");
         }
     }
 }

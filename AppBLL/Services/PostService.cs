@@ -1,7 +1,9 @@
-﻿using AppBLL.DataTransferObject;
+﻿using AppBLL.Configs;
+using AppBLL.DataTransferObject;
 using AppBLL.Infrastructure;
 using AppBLL.Interfaces;
 using AutoMapper;
+using AutoMapper.Internal;
 using DataAcess.Entities;
 using DataAcess.Interfaces;
 using DataAcess.Repositories;
@@ -18,6 +20,8 @@ namespace AppBLL.Services
 {
     public class PostService : IPostService
     {
+        readonly MapperConfigs mapperConfigs = new MapperConfigs();
+
         IUnitOfWork Database { get; set; }
 
         public PostService(IUnitOfWork uow)
@@ -25,49 +29,35 @@ namespace AppBLL.Services
             Database = uow;
         }
 
-      public void AddPost(PostDTO post)
+        public void AddPost(PostDTO post)
         {
-            Post postToDb = new Post()
-            {
-                Content = post.Content,
-                ApplicationUserId = post.UserId,
-                UserPageId = post.UserPageId,
-                PostDate = post.PostDate
-            };
-            //Database.UserProfileManager.GetUserById(post.UserId).ApplicationUser.Posts.Add(postToDb);
-            //Database.UserProfileManager.SaveChanges();
+            Mapper postMapper = new Mapper(mapperConfigs.PostDtoToPostWithoutId);
+            var postToDb = postMapper.Map<Post>(post);
 
             Database.PostRepository.Add(postToDb);
         }
 
+        public void AddGroupPost(GroupPostDTO post)
+        {
+            Mapper groupPostMapper = new Mapper(mapperConfigs.GroupPostDtoToGroupPostWithoutId);
+            var groupPost = groupPostMapper.Map<GroupPost>(post);
+
+            Database.GroupRepository.GetGroupById(post.GroupId).GroupPosts.Add(groupPost);
+            Database.UserProfileManager.SaveChanges();
+        }
+
         public IEnumerable<PostDTO> GetAllPosts(string id)
         {
-            List<PostDTO> allPosts = new List<PostDTO>();
-            List<PostLikeDTO> postLikeDTOs = new List<PostLikeDTO>();
             var posts = Database.PostRepository.GetAll(id);
-            //var posts = Database.UserProfileManager.GetUserById(id).ApplicationUser.Posts;
-            
-            foreach (var post in posts)
-            {
-                var config = new MapperConfiguration(cfg => cfg.CreateMap<PostLike, PostLikeDTO>());
-                var mapper = new Mapper(config);
-                var editProfileViewModel = mapper.Map<List<PostLikeDTO>>(post.PostLikes);
 
-                allPosts.Add(new PostDTO()
-                {
-                    Content = post.Content,
-                    Author = post.ApplicationUser.UserProfile.FirstName + " " + post.ApplicationUser.UserProfile.SecondName,
-                    Headline = post.Headline,
-                    Id = post.Id,
-                    LikeCount = post.PostLikes.Count(),
-                    Avatar = post.ApplicationUser.UserProfile.Avatar,
-                    PostDate = post.PostDate,
-                    UserId = post.ApplicationUserId,
-                    UserPageId = id
-                }) ;
+            if (posts is null)
+            {
+                throw new Exception();
             }
 
-            return allPosts;
+            Mapper postDtoMapper = new Mapper(mapperConfigs.PostToPostDto);
+
+            return postDtoMapper.Map<List<PostDTO>>(posts);
         }
 
         public void Dispose()
@@ -80,41 +70,31 @@ namespace AppBLL.Services
             throw new NotImplementedException();
         }
 
-        public void DeletePost(int id)
-        {
-            Database.PostRepository.Delete(id);
-        }
+        public void DeletePost(int id) =>  Database.PostRepository.Delete(id);
 
-     
+        public void DeleteGroupPost(int groupPostId) => Database.GroupPostRepository.Delete(groupPostId);
 
         public PostDTO GetPostById(int id)
         {
             var post = Database.PostRepository.GetById(id);
-            List<PostLikeDTO> postLikeDTOs = new List<PostLikeDTO>();
 
-            foreach (var postLike in post.PostLikes)
+            if (post is null)
             {
-                postLikeDTOs.Add(new PostLikeDTO()
-                {
-                    Id = postLike.Id,
-                    PostId = postLike.PostId,
-                    UserId = postLike.User
-                });
+                throw new Exception();
             }
 
-            return new PostDTO()
-            {
-                Content = post.Content,
-                Author = post.ApplicationUser.UserProfile.FirstName + " " + post.ApplicationUser.UserProfile.SecondName,
-                Headline = post.Headline,
-                Id = post.Id,
-                Likes = postLikeDTOs,
-                Avatar = post.ApplicationUser.UserProfile.Avatar,
-                PostDate = post.PostDate,
-                UserId = post.ApplicationUserId,
-                UserPageId = post.UserPageId
-            };
-        }
+            List<PostLikeDTO> postLikeDTOs = new List<PostLikeDTO>();
+
+            Mapper postLikeDtoMapper = new Mapper(mapperConfigs.PostLikeToPostLikeDto);
+            Mapper postDtoMapper = new Mapper(mapperConfigs.PostToPostDto);
+
+            postLikeDTOs = postLikeDtoMapper.Map<List<PostLikeDTO>>(post.PostLikes);
+            PostDTO postDTO = postDtoMapper.Map<PostDTO>(post);
+
+            postDTO.Likes = postLikeDTOs;
+
+            return postDTO;
+        }        
     }
 }
 

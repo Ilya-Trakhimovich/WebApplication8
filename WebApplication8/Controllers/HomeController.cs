@@ -13,18 +13,15 @@ using System.Linq;
 using System.Security.Claims;
 using System.Web;
 using System.Web.Mvc;
+using WebApplication8.App_Start;
 using WebApplication8.Models;
 
 namespace WebApplication8.Controllers
 {
     public class HomeController : Controller
     {
-        // IUserService _userService = new UserService();
-
-        //HomeController(IUserService service)
-        //{
-        //    _userService = service;
-        //}
+        ServiceCreator serviceCreator = new ServiceCreator();
+        MapperConfigs mapperConfigs = new MapperConfigs();
 
         private IUserService _userService
         {
@@ -33,16 +30,17 @@ namespace WebApplication8.Controllers
                 return HttpContext.GetOwinContext().GetUserManager<IUserService>();
             }
         }
+
         private IPostService _postService
         {
             get
             {
-                ServiceCreator serviceCreator = new ServiceCreator();
-                var postService = serviceCreator.CreatePostService("XConnection");
-                return postService;
+                return serviceCreator.CreatePostService();
                 // return HttpContext.GetOwinContext().GetUserManager<IPostService>();
             }
         }
+
+        public ActionResult Users() => View(_userService.GetAllUsers());
 
         public ActionResult AvatarAdd(HttpPostedFileBase uploadImage)
         {
@@ -57,52 +55,18 @@ namespace WebApplication8.Controllers
         [Authorize]
         public ActionResult ChangeProfileInformation()
         {
-            var claimsIdentity = User.Identity as ClaimsIdentity;
-
-            if (claimsIdentity != null)
+            if (User.Identity.GetUserId() != null)
             {
-                // the principal identity is a claims identity.
-                // now we need to find the NameIdentifier claim
-                var userIdClaim = claimsIdentity.Claims
-                    .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+                var profileInformation = _userService.GetProfileInformation(User.Identity.GetUserId());
 
-                if (userIdClaim != null)
-                {
-                    var profileInformation = _userService.GetProfileInformation(userIdClaim.Value);
+                var mapper = new Mapper(mapperConfigs.ProfileInformationDtoToEditProfileViewModel);
+                var editProfileViewModel = mapper.Map<EditProfileViewModel>(profileInformation);
 
-                    var config = new MapperConfiguration(cfg => cfg.CreateMap<ProfileInformationDTO, EditProfileViewModel>());
-                    var mapper = new Mapper(config);
-                    var editProfileViewModel = mapper.Map<EditProfileViewModel>(profileInformation);
-
-                    return View(editProfileViewModel);
-
-                }
+                return View(editProfileViewModel);
             }
-
-            return RedirectToAction("Register", "Account");
+            else
+                return RedirectToAction("Register", "Account");
         }
-
-        //[Authorize]
-        //public ActionResult Index() // ToDo Поменять вью модель на вью модель с профилем для полного отображения информации профиля
-        //{
-        //    var UserDetails = _userService.GetUserDetails(User.Identity.GetUserId());
-        //    var postsDTO = _postService.GetAllPosts(User.Identity.GetUserId());
-
-        //    var config = new MapperConfiguration(cfg => cfg.CreateMap<PostDTO, PostViewModel>());
-        //    var mapper = new Mapper(config);
-
-        //    var posts = mapper.Map<List<PostViewModel>>(postsDTO);
-
-        //    UserViewModel userViewModel = new UserViewModel()
-        //    {
-        //        Age = UserDetails.Age,
-        //        Name = UserDetails.Name,
-        //        Posts = posts
-        //    };
-
-        //    //return RedirectToAction("Index", "Home", new { @id = id });
-        //}
-
 
         [Authorize]
         public ActionResult Index(string id)
@@ -114,24 +78,16 @@ namespace WebApplication8.Controllers
 
             var UserDetails = _userService.GetProfileInformation(id);
             var postsDTO = _postService.GetAllPosts(id);
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<PostDTO, PostViewModel>());
-            var mapper = new Mapper(config);
+
+            var mapper = new Mapper(mapperConfigs.PostDtoToPostViewModel);
             var posts = mapper.Map<List<PostViewModel>>(postsDTO);
 
             posts.Reverse();
 
-            UserViewModel userViewModel = new UserViewModel()
-            {
-                Age = UserDetails.Age,
-                AboutMe = UserDetails.AboutMe,
-                Address = UserDetails.Address,
-                Education = UserDetails.Education,
-                Gender = UserDetails.Gender,
-                Id = id,
-                Name = UserDetails.FirstName + " " + UserDetails.SecondName,
-                Avatar = UserDetails.Avatar,
-                Posts = posts
-            };
+            var mapper1 = new Mapper(mapperConfigs.ProfileInformationDtoToUserViewModel);
+            var userViewModel = mapper1.Map<UserViewModel>(UserDetails);
+            userViewModel.Id = id;
+            userViewModel.Posts = posts;
 
             return View(userViewModel);
         }
@@ -153,6 +109,11 @@ namespace WebApplication8.Controllers
 
         public ActionResult SaveInformationForm(EditProfileViewModel profileInformation, HttpPostedFileBase uploadImage)
         {
+            if (profileInformation.Age < 0 || profileInformation.Age > 120)
+            {
+                ModelState.AddModelError("Age", "Недопустимый возраст");
+            }
+
             if (ModelState.IsValid)
             {
                 MapperConfiguration config;
@@ -185,21 +146,14 @@ namespace WebApplication8.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        public ActionResult Users(string searchText)
+        public ActionResult UserSearch(string name)
         {
             var users = _userService.GetAllUsers(); // users type is List<UserProfileDTO>
 
-            if (!String.IsNullOrEmpty(searchText))
-                users = users.Where(x => x.Name.Contains(searchText)).ToList();
+            if (!String.IsNullOrEmpty(name))
+                users = users.Where(x => x.Name.ToUpper().Contains(name.ToUpper())).ToList();
 
-            return View(users);
-        }
-
-        public ActionResult GetUsersByName(string userName)
-        {
-            var users = _userService.GetUsersByName(userName);
-
-            return View("Users", users);
+            return PartialView(users);
         }
     }
 }

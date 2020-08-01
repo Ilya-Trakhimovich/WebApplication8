@@ -62,13 +62,10 @@ namespace DataAcess.Repositories
         {
             return Db.UserProfiles.FirstOrDefault(x => x.Id == id);
         }
-
     
         public void Dispose()
-        {
-           
+        {           
             Db.Dispose();
         }
-
     }
 }

@@ -16,15 +16,9 @@ namespace AppBLL.Interfaces
         byte[] GetDefaultAvatar();
         void AddUser(string userId, int groupId);
         void DeleteUserFromGroup(string userId, int groupId);
-
-        void AddPost(GroupPostDTO groupPostDTO);
-
         void UpdateGroupInformation(GroupDTO groupDTO);
-
         byte[] GetAvatar(int id);
-
         string GetAdmin(int id);
         IEnumerable<GroupDTO> GetGroupsByName(string groupName);
-
     }
 }

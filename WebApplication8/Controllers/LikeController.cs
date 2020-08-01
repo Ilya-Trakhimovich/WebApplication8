@@ -9,11 +9,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using WebApplication8.SignalRHubs;
 
 namespace WebApplication8.Controllers
 {
     public class LikeController : Controller
     {
+        ServiceCreator serviceCreator = new ServiceCreator();
         private IUserService _userService
         {
             get
@@ -25,9 +27,7 @@ namespace WebApplication8.Controllers
         {
             get
             {
-                ServiceCreator serviceCreator = new ServiceCreator();
-                var postService = serviceCreator.CreatePostService("XConnection");
-                return postService;
+                return serviceCreator.CreatePostService();
                 // return HttpContext.GetOwinContext().GetUserManager<IPostService>();
             }
         }
@@ -35,24 +35,24 @@ namespace WebApplication8.Controllers
         {
             get
             {
-                ServiceCreator serviceCreator = new ServiceCreator();
-                var likeService = serviceCreator.CreateLikeService("XConnection");
-                return likeService;
+                return serviceCreator.CreateLikeService();
                 // return HttpContext.GetOwinContext().GetUserManager<IPostService>();
             }
         }
+
         // GET: Like
-        public ActionResult Index()
-        {
-            return View();
-        }
+        public ActionResult Index() => View();
 
         public ActionResult Like(int postId)
         {
             // var post = _postService.GetAllPosts(User.Identity.GetUserId()).Where(x => x.Id == postId).FirstOrDefault();
             var post = _postService.GetPostById(postId);
 
-            if (post.Likes.Where(x => x.UserId == User.Identity.GetUserId()).ToList().Count < 1)
+            if (post
+                .Likes
+                .Where(x => x.UserId == User.Identity.GetUserId())
+                .ToList()
+                .Count < 1)
             {
                 _likeService.AddLikeToPost(new PostLikeDTO()
                 {
@@ -68,7 +68,21 @@ namespace WebApplication8.Controllers
                     UserId = User.Identity.GetUserId()
                 });
             }
+            SendLikeMessage("Ваша публикация понравилась пользователю", post.UserPageId);
+
             return RedirectToAction($"Index/{_postService.GetPostById(postId).UserPageId}", "Home");
+        }
+
+        private void SendLikeMessage(string message, string userid)
+        {
+            // Получаем контекст хаба
+            var context =
+                Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
+            // отправляем сообщение
+            context.Clients.All.displayMessage(message);
+
+          //  context.Clients.Users()
+        //    context.Clients.All.displayMessage(message);
         }
     }
 }

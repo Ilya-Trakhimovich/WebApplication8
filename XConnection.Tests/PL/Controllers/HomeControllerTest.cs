@@ -7,6 +7,8 @@ using System.Web.Mvc;
 using Moq;
 using AppBLL.DataTransferObject;
 using AppBLL.Interfaces;
+using System.Web;
+using WebApplication8.Models;
 
 namespace XConnection.Tests.PL.Controllers
 {
@@ -16,17 +18,55 @@ namespace XConnection.Tests.PL.Controllers
     [TestClass]
     public class HomeControllerTest
     {
-        //[TestMethod]
-        //public void Users_UsersViewEqualsViewCshtmml_Returns_CoorectView()
-        //{
-        //    var mock = new Mock<IUserService>();
-        //    mock.Setup(x => x.GetAllUsers()).Returns(new List<UserProfileDTO>());
+        [TestMethod]
+        public void AvatarAdd_ModelIsNotValid_Returns_RedirectToAction()
+        {
+            //Arrange
+            var expected = "Index/1";
+            HttpPostedFileBase inputFile = null;
+            var homeController = new HomeController();
+            homeController.ModelState.AddModelError("", "Error");
 
-        //    HomeController controller = new HomeController();
+            //Act
+            var result = homeController.AvatarAdd(inputFile) as RedirectToRouteResult;
 
-        //    var result = controller.Users("12345") as ViewResult;
+            //Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expected, result.RouteValues["action"]);
+        }
 
-        //    Assert.IsNotNull(result.Model);
-        //}
+        [TestMethod]
+        public void AvatarAdd_UploadImageIsNull_Returns_RedirectToAction()
+        {
+            //Arrange
+            var expected = "Index/1";
+            HttpPostedFileBase inputFile = null;
+            var homeController = new HomeController();
+
+            //Act
+            var result = homeController.AvatarAdd(inputFile) as RedirectToRouteResult;
+
+            //Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expected, result.RouteValues["action"]);
+        }
+
+        [TestMethod]
+        public void SaveInformatiomForm_ModelIsNotValid_Returns_RedirectToAction()
+        {
+            //Arrange
+            var expected = "Index";
+            var profileInformation = new EditProfileViewModel();
+            HttpPostedFileBase inputFile = null;
+            var homeController = new HomeController();
+            homeController.ModelState.AddModelError("", "Error");
+
+            //Act
+            var result = homeController.SaveInformationForm(profileInformation, inputFile) as RedirectToRouteResult;
+
+            //Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expected, result.RouteValues["action"]);
+        }
     }
 }

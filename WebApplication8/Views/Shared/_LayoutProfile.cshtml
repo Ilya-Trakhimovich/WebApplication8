@@ -15,39 +15,18 @@
     <header class="header">
 
         <div class="container">
-            <div class="header_inner">
-                <div class="header_logo">
-                    <h1>The Cover</h1>
-                    <h5>The world social network</h5>
-                    <br />
-                    <div style="text-align: right; padding-right: 5px">
-                    <button type="button" value="Меню" class="btn-nav-bar-collapse" data-toggle="collapse" data-target=".nav-bar-collapse">
-                        Меню
-                    </button>
-                </div>
-
-            </div>
-            </div>
-            <div class="col-md-12">
-                <div class="col-md-2 nav-bar-collapse">
+       
+            <div class="container">
+                <div class="col-md-3 text-center">
                     @Html.ActionLink("Профиль", "Index/1", "Home", new { area = "" }, new { @class = "navbar-brand" })
                 </div>
-                <div class="col-md-2 nav-bar-collapse">
+                <div class="col-md-3 text-center">
                     @Html.ActionLink("Пользователи", "Users", "Home", new { area = "" }, new { @class = "navbar-brand" })
                 </div>
-                <div class="col-md-1 nav-bar-collapse">
-                    <a class="nav_link" href="http://www.radiorecord.ru/" target="_blank">Музыка</a>
-                </div>
-                <div class="col-md-2 nav-bar-collapse">
-                    <a class="nav_link" href="photos.html">Фотографии</a>
-                </div>
-                <div class="col-md-1 nav-bar-collapse">
-                    <a class="nav_link" href="https://www.youtube.com/" target="_blank">Видео</a>
-                </div>
-                <div class="col-md-2 nav-bar-collapse">
+                <div class="col-md-3 text-center">
                     @Html.ActionLink("Сообщества", "Groups", "Group", new { area = "" }, new { @class = "navbar-brand" })
                 </div>
-                <div class="col-md-2 nav-bar-collapse">
+                <div class="col-md-3 text-center">
                     @Html.ActionLink("Настройки", "ChangeProfileInformation", "Home", new { area = "" }, new { @class = "navbar-brand" })
                 </div>
             </div>
@@ -58,25 +37,6 @@
         @RenderBody()
     </div>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="footer_inner">
-                <div class="footer_block">
-                    <p class="copyright">© ЗАО «IT-Media», 2020</p>
-                </div>
-                <div class="footer_block">
-                    <h4 class="footer_title">connection</h4>
-                    <div class="social">
-                        <a class="social_item" href="https://vk.com/id11833696" target="_blank">
-                            <img src="~/Img/soclogo/vk.svg" height="20px" alt="vk.com">
-                        </a>
-                        <a class="social_item" href="https://www.linkedin.com/in/ilya-trakhimovich/" target="_blank">
-                            <img src="~/Img/soclogo/linkedin.svg" height="20px" alt="linkedin">
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
+
 </body>
 </html>

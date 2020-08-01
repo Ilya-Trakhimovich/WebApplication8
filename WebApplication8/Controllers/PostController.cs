@@ -12,32 +12,56 @@ namespace WebApplication8.Controllers
 {
     public class PostController : Controller
     {
-        private IPostService _postService
-        {
-            get
-            {
-                ServiceCreator serviceCreator = new ServiceCreator();
-                var postService = serviceCreator.CreatePostService("XConnection");
+        readonly private IPostService _postService;
+        readonly private ServiceCreator _service = new ServiceCreator();
 
-                return postService;
-                // return HttpContext.GetOwinContext().GetUserManager<IPostService>();
-            }
+        public Func<string> GetUserId;
+
+        public PostController()
+        {
+            _postService = _service.CreatePostService();
+            GetUserId = () => User.Identity.GetUserId();
+        }
+
+        public PostController(IServiceCreator service)
+        {
+            _postService = service.CreatePostService();
+            GetUserId = () => User.Identity.GetUserId();
         }
 
         public ActionResult Add(string postContent, string Id)
         {
+            if (postContent is null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (Id is null)
+            {
+                throw new ArgumentNullException();
+            }
+
             if (ModelState.IsValid)
             {
-                PostDTO postDTO = new PostDTO();
-                postDTO.Content = postContent;
-                postDTO.PostDate = DateTime.Now;
-                postDTO.UserId = User.Identity.GetUserId();
-                postDTO.UserPageId = Id;
+                PostDTO postDTO = new PostDTO
+                {
+                    Content = postContent,
+                    PostDate = DateTime.Now,
+                    UserId = GetUserId(),
+                    UserPageId = Id
+                };
 
                 _postService.AddPost(postDTO);
             }
 
             return RedirectToAction($"Index/{Id}", "Home");
+        }
+
+        public ActionResult GroupPostDelete(int groupId, int groupPostId)
+        {
+            _postService.DeleteGroupPost(groupPostId);
+
+            return RedirectToAction($"Group/{groupId}", "Group");
         }
     }
 }

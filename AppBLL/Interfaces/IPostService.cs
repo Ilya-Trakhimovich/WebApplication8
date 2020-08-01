@@ -13,11 +13,10 @@ namespace AppBLL.Interfaces
     public interface IPostService : IDisposable
     {
         void AddPost(PostDTO postDTO); // create post
+        void AddGroupPost(GroupPostDTO post);
         IEnumerable<PostDTO> GetAllPosts(string id);
-
         void DeletePost(int id);
-
+        void DeleteGroupPost(int groupPostId);
         PostDTO GetPostById(int id);
-
     }
 }

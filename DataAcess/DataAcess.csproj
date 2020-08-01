@@ -97,10 +97,12 @@
     <Compile Include="Entities\Post.cs" />
     <Compile Include="Entities\ApplicationUser.cs" />
     <Compile Include="Interfaces\IGroupManager.cs" />
-    <Compile Include="Interfaces\IRepository.cs" />
+    <Compile Include="Interfaces\IGroupPostRepository.cs" />
+    <Compile Include="Interfaces\IPostRepository.cs" />
     <Compile Include="Interfaces\IUnitOfWork.cs" />
     <Compile Include="Interfaces\IUserProfileManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\GroupPostRepository.cs" />
     <Compile Include="Repositories\GroupRepository.cs" />
     <Compile Include="Repositories\IdentityUnitOfWork.cs" />
     <Compile Include="Repositories\PostRepository.cs" />

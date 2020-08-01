@@ -14,13 +14,9 @@ namespace AppBLL.Interfaces
     {
         Task<OperationDetails> Create(UserDTO userDto); // create users
         Task<ClaimsIdentity> Authenticate(UserDTO userDto); // user authentication
-        Task SetInitialData(UserDTO adminDto, List<string> roles); // installation of initial data in the database - admin and list of roles
-        UserProfileDTO GetUserDetails(string id);
+        string GetUserIdByEmail(string mail);
         ProfileInformationDTO GetProfileInformation(string id);
-
         List<UserProfileDTO> GetAllUsers();
-        List<UserProfileDTO> GetUsersByName(string userName);
-
         bool IsUserExist(string id);
         byte[] GetAvatar(string id);
         byte[] GetDefaultAvatar();

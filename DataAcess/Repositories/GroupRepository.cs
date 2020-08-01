@@ -17,6 +17,7 @@ namespace DataAcess.Repositories
         {
             Db = db;
         }
+
         public void Create(Group entity)
         {
             Db.Groups.Add(entity);
@@ -31,6 +32,7 @@ namespace DataAcess.Repositories
         public List<Group> GetAllGroups()
         {
             var groups = Db.Groups.ToList();
+
             return groups;
         }
 
@@ -46,18 +48,27 @@ namespace DataAcess.Repositories
 
         public void UpdateGroupInformation(Group group)
         {
-            var groupDB = Db.Groups.Where(x => x.Id == group.Id).FirstOrDefault();
+            var groupDB = Db
+                        .Groups
+                        .Where(x => x.Id == group.Id)
+                        .FirstOrDefault();
+
             groupDB.GroupName = group.GroupName;
             groupDB.GroupDescription = group.GroupDescription;
 
-            if (group.Avatar != null)
+            if (group.Avatar != null && group.Avatar.Length>10)
                 groupDB.Avatar = group.Avatar;
+
             Db.SaveChanges();
         }
 
         public List<Group> GetGroupsByName(string groupName)
         {
-            var groups = Db.Groups.Where(x => x.GroupName.Contains(groupName)).ToList();
+            var groups = Db
+                        .Groups
+                        .Where(x => x.GroupName.Contains(groupName))
+                        .ToList();
+
             return groups;
         }       
     }

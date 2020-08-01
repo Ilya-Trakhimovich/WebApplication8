@@ -8,8 +8,9 @@ namespace AppBLL.Interfaces
 {
     public interface IServiceCreator
     {
-        IUserService CreateUserService(string connection);
-        IPostService CreatePostService(string connection);
-        ILikeService CreateLikeService(string connection);
+        IUserService CreateUserService();
+        IPostService CreatePostService();
+        ILikeService CreateLikeService();
+        IGroupService CreateGroupService();
     }
 }

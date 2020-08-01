@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
 
 [assembly: OwinStartup(typeof(WebApplication8.App_Start.Startup))]
 
@@ -16,10 +17,13 @@ namespace WebApplication8.App_Start
 {
     public class Startup
     {
-        IServiceCreator serviceCreator = new ServiceCreator();
+        readonly IServiceCreator serviceCreator = new ServiceCreator();
+
         public void Configuration(IAppBuilder app)
         {
+            app.MapSignalR();
             app.CreatePerOwinContext<IUserService>(CreateUserService);
+            app.CreatePerOwinContext<IPostService>(CreatePostService);
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
@@ -29,12 +33,12 @@ namespace WebApplication8.App_Start
 
         private IUserService CreateUserService()
         {
-            return serviceCreator.CreateUserService("XConnection");
+            return serviceCreator.CreateUserService();
         }
 
         private IPostService CreatePostService()
         {
-            return serviceCreator.CreatePostService("XConnection");
+            return serviceCreator.CreatePostService();
         }
-    }
+    }    
 }

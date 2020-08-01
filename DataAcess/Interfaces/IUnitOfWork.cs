@@ -10,11 +10,12 @@ namespace DataAcess.Interfaces
 {
     public interface IUnitOfWork: IDisposable
     {
+        Task SaveAsync();
         ApplicationUserManager UserManager { get; }
         ApplicationRoleManager RoleManager { get; }
         IUserProfileManager UserProfileManager { get; }
         IGroupManager<Group> GroupRepository { get; }
-        IRepository<Post> PostRepository { get;  }
-        Task SaveAsync();
+        IPostRepository<Post> PostRepository { get;  }
+        IGroupPostRepository<GroupPost> GroupPostRepository { get; }
     }
 }

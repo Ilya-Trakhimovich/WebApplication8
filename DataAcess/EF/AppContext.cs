@@ -13,23 +13,15 @@ namespace DataAcess.EF
     {
         public DbSet<Group> Groups { get; set; }
         public DbSet<Post> Posts { get; set; }
+        public DbSet<GroupPost> GroupPosts { get; set; }
         public DbSet<PostLike> PostLikes { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
 
-        // IdentityDbContext already has Users and Roles properties that allow it to interact with user and role tables
-
         public AppContext(string conectionString) : base(conectionString) { }
-
-        //public static AppContext Create()
-        //{
-        //    return new AppContext();
-        //}
 
         static AppContext()
         {
             Database.SetInitializer<AppContext>(new AppUserInitializer());
         }
-
-        //public AppContext(string connectionString) : base(connectionString) { }
     }
 }

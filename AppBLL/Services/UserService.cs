@@ -1,4 +1,5 @@
-﻿using AppBLL.DataTransferObject;
+﻿using AppBLL.Configs;
+using AppBLL.DataTransferObject;
 using AppBLL.Infrastructure;
 using AppBLL.Interfaces;
 using AutoMapper;
@@ -13,6 +14,8 @@ using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
+using System.Security;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +26,8 @@ namespace AppBLL.Services
     {
         IUnitOfWork Database { get; set; }
 
+        readonly MapperConfigs mapperConfigs = new MapperConfigs();
+
         public UserService(IUnitOfWork uow)
         {
             Database = uow;
@@ -30,11 +35,21 @@ namespace AppBLL.Services
 
         public async Task<OperationDetails> Create(UserDTO userDto)
         {
-            ApplicationUser user = await Database.UserManager.FindByEmailAsync(userDto.Email);
+            ApplicationUser user = await Database
+                                        .UserManager
+                                        .FindByEmailAsync(userDto.Email);
+            
             if (user == null)
             {
-                user = new ApplicationUser { Email = userDto.Email, UserName = userDto.Email };
-                var result = await Database.UserManager.CreateAsync(user, userDto.Password);
+                user = new ApplicationUser 
+                {
+                    Email = userDto.Email, 
+                    UserName = userDto.Email 
+                };
+
+                var result = await Database
+                                  .UserManager
+                                  .CreateAsync(user, userDto.Password);
 
                 if (result.Errors.Count() > 0)
                     return new OperationDetails(false, result.Errors.FirstOrDefault(), "");
@@ -43,7 +58,13 @@ namespace AppBLL.Services
                 await Database.UserManager.AddToRoleAsync(user.Id, userDto.Role);
 
                 // создаем профиль клиента
-                UserProfile userProfile = new UserProfile { Id = user.Id, Avatar = userDto.Avatar, FirstName = userDto.FirstName, SecondName = userDto.SecondName };
+                UserProfile userProfile = new UserProfile
+                {
+                    Id = user.Id,
+                    Avatar = userDto.Avatar, 
+                    FirstName = userDto.FirstName,
+                    SecondName = userDto.SecondName 
+                };
 
                 Database.UserProfileManager.Create(userProfile);
 
@@ -66,127 +87,80 @@ namespace AppBLL.Services
 
             // авторизуем его и возвращаем объект ClaimsIdentity
             if (user != null)
-                claim = await Database.UserManager.CreateIdentityAsync(user,
-                                            DefaultAuthenticationTypes.ApplicationCookie);
+                claim = await Database
+                             .UserManager
+                             .CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie);
 
             return claim;
         }
 
-        // начальная инициализация бд
-        public async Task SetInitialData(UserDTO adminDto, List<string> roles)
+        public string GetUserIdByEmail(string mail)
         {
-            //foreach (string roleName in roles)
-            //{
-            //    var role = await Database.RoleManager.FindByNameAsync(roleName);
-
-            //    if (role == null)
-            //    {
-            //        role = new ApplicationRole { Name = roleName };
-
-            //        await Database.RoleManager.CreateAsync(role);
-            //    }
-            //}
-            //await Create(adminDto);
+            return Database.UserManager.FindByEmail(mail).Id;
         }
 
         public void SaveProfileInformationById(string id, ProfileInformationDTO informationDTO)
         {
             var user = Database.UserManager.FindById(id);
 
+            //Mapper userProfileMapper = new Mapper(mapperConfigs.ProfileInformationDtoToUserProfile);
+            //user.UserProfile = userProfileMapper.Map<UserProfile>(informationDTO);
+
             user.UserProfile.AboutMe = informationDTO.AboutMe;
-            user.UserProfile.Address = informationDTO.Address;
-            user.UserProfile.Age = informationDTO.Age;
             user.UserProfile.Avatar = informationDTO.Avatar;
-            user.UserProfile.Gender = informationDTO.Gender;
+            user.UserProfile.Age = informationDTO.Age;
+            user.UserProfile.Address = informationDTO.Address;
             user.UserProfile.FirstName = informationDTO.FirstName;
             user.UserProfile.SecondName = informationDTO.SecondName;
+            user.UserProfile.Gender = informationDTO.Gender;
             user.UserProfile.Education = informationDTO.Education;
+
 
             Database.UserManager.Update(user);
             Database.UserProfileManager.SaveChanges();
         }
-
-        public UserProfileDTO GetUserDetails(string id)
-        {
-            var profileManager = Database.UserProfileManager;
-
-            var profile = profileManager.GetUserById(id);
-
-            return new UserProfileDTO()
-            {
-                Name = profile.FirstName + " " + profile.SecondName,
-                Age = profile.ApplicationUser.UserProfile.Age
-            };
-        }
-
+       
         public List<UserProfileDTO> GetAllUsers()
         {
             var users = Database.UserProfileManager.GetAllUsers();
 
-            List<UserProfileDTO> userProfileDTOs = new List<UserProfileDTO>();
-
-            foreach (var user in users)
+            if (users is null)
             {
-                userProfileDTOs.Add(new UserProfileDTO()
-                {
-                    Id = user.Id,
-                    Age = user.Age,
-                    Avatar = user.Avatar,
-                    Name = user.FirstName + " " + user.SecondName
-                });
+                throw new Exception();
             }
 
-            return userProfileDTOs;
-        }
-        public List<UserProfileDTO> GetUsersByName(string userName)
-        {
-            var users = Database.UserProfileManager.GetAllUsers().Where(x => GetFullName(x.Id).Contains(userName));
-            List<UserProfileDTO> usersProfileDTO = new List<UserProfileDTO>();
+            Mapper userProfileDtoMapper = new Mapper(mapperConfigs.UserProfileToUserProfileDTO);
 
-            foreach (var user in users)
-            {
-                usersProfileDTO.Add(new UserProfileDTO()
-                {
-                    Id = user.Id,
-                    Age = user.Age,
-                    Avatar = user.Avatar,
-                    Name = GetFullName(user.Id)
-                });
-            }
-
-            return usersProfileDTO;
+            return userProfileDtoMapper.Map<List<UserProfileDTO>>(users);
         }
 
         public string GetFullName(string id)
         {
-            return Database.UserManager.FindById(id).UserProfile.FirstName + " " +
-                Database.UserManager.FindById(id).UserProfile.SecondName;
+            var userProfile = Database
+                             .UserManager
+                             .FindByIdAsync(id)
+                             .Result
+                             .UserProfile;
+
+            return $"{userProfile.FirstName} {userProfile.SecondName}";
         }
 
         public ProfileInformationDTO GetProfileInformation(string id)
         {
             var profileManager = Database.UserProfileManager;
-
             var profile = profileManager.GetUserById(id);
 
-            return new ProfileInformationDTO()
+            if (profile is null)
             {
-                FirstName = profile.FirstName,
-                SecondName = profile.SecondName,
-                Age = profile.Age,
-                Avatar = profile.Avatar,
-                Address = profile.Address,
-                Gender = profile.Gender,
-                Education = profile.Education,
-                AboutMe = profile.AboutMe
+                throw new Exception();
+            }
 
-            };
+            Mapper profileInformationDtoMapper = new Mapper(mapperConfigs.UserProfileToProfileInformationDto);
+
+            return profileInformationDtoMapper.Map<ProfileInformationDTO>(profile);
         }
 
-        public void Dispose()
-        {
-            Database.Dispose();
-        }
+        public void Dispose() => Database.Dispose();
 
         public bool IsUserExist(string id)
         {
@@ -196,55 +170,31 @@ namespace AppBLL.Services
             return false;
         }
 
-        UserProfileDTO IUserService.GetUserDetails(string id)
-        {
-            var profileManager = Database.UserProfileManager;
-            var profile = profileManager.GetUserById(id);
-
-            return new UserProfileDTO()
-            {
-                Name = profile.FirstName + " " + profile.SecondName,
-                Age = profile.Age,
-                Avatar = profile.Avatar
-            };
-        }
-
-        public byte[] GetAvatar(string id)
-        {
-            return Database.UserManager.FindById(id).UserProfile.Avatar;
-        }
+        public byte[] GetAvatar(string id) => Database.UserManager.FindById(id).UserProfile.Avatar;
 
         public byte[] GetDefaultAvatar()
         {
             var image = File.OpenRead("default.jpg");
             byte[] imageData = null;
 
-            // считываем переданный файл в массив байтов
             using (var binaryReader = new BinaryReader(image))
-            {
                 imageData = binaryReader.ReadBytes((int)image.Length);
-            }
 
             return imageData;
         }
 
         public IEnumerable<GroupDTO> GetUserGroups(string userid)
         {
-            var usergroups = Database.UserManager.FindById(userid).Groups.ToList();
+            var usergroups = Database.UserManager.FindByIdAsync(userid).Result.Groups;
 
-            List<GroupDTO> userGroups = new List<GroupDTO>();
-
-            foreach (var group in usergroups)
+            if (usergroups is null)
             {
-                userGroups.Add(new GroupDTO()
-                {
-                    Avatar = group.Avatar,
-                    GroupDescription = group.GroupDescription,
-                    GroupName = group.GroupName,
-                    Id = group.Id
-                });
+                throw new Exception();
             }
-            return userGroups;
+
+            Mapper groupDtoMapper = new Mapper(mapperConfigs.GroupToGroupDto);
+
+            return groupDtoMapper.Map<List<GroupDTO>>(usergroups);
         }
     }
 }

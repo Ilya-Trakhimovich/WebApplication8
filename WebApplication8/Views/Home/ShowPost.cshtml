@@ -4,47 +4,37 @@
 @foreach (var post in Model)
 {
 
-    <div class="row" style="margin-top: 20px;padding-left:15px;">
+    <div class="row div-shadow div-post-block">
 
-        <div class="col-md-2" style="overflow: hidden; text-align:left;">
+        <div class="col-md-2 div-post-autor">
             @Html.Raw("<img style='width:100px; height:100px; border-radius:100%; text-align: right;' src=\"data:image/jpeg;base64,"
                                + Convert.ToBase64String(post.Avatar) + "\" />")
             <br />
-
             @post.Author
+            <br />
+            @post.PostDate
         </div>
-        <div class="col-md-9 " style="border: solid 1px;min-height: 100px; overflow: auto; max-height: 500px;">
+        <div class="col-md-9 div-post-content" >
 
             @post.Content
 
         </div>
-        <div class="col-md-1" style="min-height: 30px;overflow: auto;">
+
+        <div class="col-md-1 div-post-delete">
             @if (post.UserId == ViewBag.MyId || post.UserPageId == ViewBag.MyId)
             {
-
                 using (@Html.BeginForm("PostDelete", "Home"))
                 {
                     <input type="hidden" name="postId" id="postId" value="@post.Id" />
                     <input type="submit" value="Удалить" class="btn btn-default" />
                 }
-
             }
-        </div>
 
-    </div>
-    <div class=" row">
-        @*<div class=" col-md-10">
-           
-        </div>*@
-        <div class="col-md-offset-9">
+            @if (post.LikeCount > 0)
+            {
+                @:Оценили  @post.LikeCount
+            }
             @Html.Partial("LikeView", null, new ViewDataDictionary { { "postId", post.Id } })
-            @post.LikeCount
-            @post.PostDate
         </div>
     </div>
-    <hr style="
-    color: black;
-    height: 2px;
-    background-color: gainsboro;
-    ">
 }

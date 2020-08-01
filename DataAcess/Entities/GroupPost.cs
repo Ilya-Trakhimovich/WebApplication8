@@ -14,8 +14,7 @@ namespace DataAcess.Entities
         public string authorId { get; set; }
         public int GroupId { get; set; }
         public virtual Group Group { get; set; }
-        //   public byte[] Avatar { get; set; }
-     //   public string ApplicationUserId { get; set; }
-    ///   public virtual ApplicationUser ApplicationUser { get; set; }
+        public string ApplicationUserId { get; set; }
+        public virtual ApplicationUser ApplicationUser { get; set; }
     }
 }

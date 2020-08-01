@@ -4,8 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - My ASP.NET Application</title>
+    <link rel="icon" href="@Url.Content("~/Img/favicon/fav.png")" />
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
+    @Styles.Render("~/Profile/css")
 </head>
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
@@ -40,13 +42,35 @@
     <div class="container body-content">
         @RenderBody()
         <hr />
-        <footer>
-            
-        </footer>
     </div>
+
+
+    <footer class="footer navbar-fixed-bottom" style="color: white">
+        <div class="container">
+            <div class="footer_inner">
+                <div class="footer_block">
+                    <p class="copyright">© ЗАО «IT-Media», 2020</p>
+                </div>
+                <div class="footer_block">
+                    <h4 class="footer_title">connection</h4>
+                    <div class="social">
+                        <a class="social_item" href="https://vk.com/id11833696" target="_blank">
+                            <img src="~/Img/soclogo/vk.svg" height="20px" alt="vk.com">
+                        </a>
+                        <a class="social_item" href="https://www.linkedin.com/in/ilya-trakhimovich/" target="_blank">
+                            <img src="~/Img/soclogo/linkedin.svg" height="20px" alt="linkedin">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
-    @RenderSection("scripts", required: false)
+    @Scripts.Render("~/scripts/jquery-3.4.1.min.js")
+    @Scripts.Render("~/scripts/jquery.unobtrusive-ajax.min.js")
+
 </body>
 </html>
+

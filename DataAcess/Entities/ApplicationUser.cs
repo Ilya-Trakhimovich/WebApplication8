@@ -12,13 +12,11 @@ namespace DataAcess.Entities
         public virtual UserProfile UserProfile { get; set; }
         public virtual ICollection<Group> Groups { get; set; }
         public virtual ICollection<Post> Posts { get; set; }
-      //  public virtual ICollection<PostLike> LikePosts { get; set; }
 
         public ApplicationUser()
         {
             Groups = new List<Group>();
             Posts = new List<Post>();
-          //  LikePosts = new List<PostLike>();
         }
     }
 }

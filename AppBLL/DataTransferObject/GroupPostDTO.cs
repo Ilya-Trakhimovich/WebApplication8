@@ -11,7 +11,7 @@ namespace AppBLL.DataTransferObject
         public int Id { get; set; }
         public string Content { get; set; }
         public DateTime PostDate { get; set; }
-        public string authorId { get; set; }
+        public string AuthorId { get; set; }
         public int GroupId { get; set; }
     }
 }
